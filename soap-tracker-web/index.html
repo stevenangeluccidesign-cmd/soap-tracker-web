@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EVS Soap Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .correct {
+            background: #c8f7c5;
+        }
+
+        .wrong {
+            background: #ffcccc;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>EVS Soap Tracker</h1>
+
+<p><strong>Soap ID:</strong></p>
+<p id="soapId"></p>
+
+<p><strong>This soap belongs in:</strong></p>
+<p id="assignedLocation"></p>
+
+<label for="currentLocation">
+    <strong>Where is the soap now?</strong>
+</label>
+
+<select id="currentLocation">
+    <option value="">Choose area</option>
+    <option value="1 West Men's Restroom">1 West Men's Restroom</option>
+    <option value="1 West Women's Restroom">1 West Women's Restroom</option>
+    <option value="1 East Men's Restroom">1 East Men's Restroom</option>
+</select>
+
+<button onclick="checkLocation()">CHECK SOAP</button>
+
+<div id="result"></div>
+
+<script>
+
+const soapLocations = {
+    "SOAP-001": "1 West Men's Restroom",
+    "SOAP-002": "1 West Women's Restroom",
+    "SOAP-003": "1 East Men's Restroom"
+};
+
+const params = new URLSearchParams(window.location.search);
+
+const soapId = params.get("soap") || "SOAP-001";
+
+const assignedLocation = soapLocations[soapId];
+
+document.getElementById("soapId").textContent = soapId;
+
+document.getElementById("assignedLocation").textContent =
+    assignedLocation || "Soap not found";
+
+function checkLocation() {
+
+    const currentLocation =
+        document.getElementById("currentLocation").value;
+
+    const result =
+        document.getElementById("result");
+
+    if (!currentLocation) {
+        result.textContent = "Choose an area first.";
+        result.className = "";
+        return;
+    }
+
+    if (currentLocation === assignedLocation) {
+
+        result.textContent = "✅ CORRECT AREA";
+        result.className = "correct";
+
+    } else {
+
+        result.textContent =
+            "🚨 WRONG AREA — belongs in " + assignedLocation;
+
+        result.className = "wrong";
+    }
+}
+
+</script>
+
+</body>
+</html>
