@@ -40,6 +40,64 @@
         .wrong {
             background: #ffcccc;
         }
+
+        #animationArea {
+            margin-top: 20px;
+            height: 140px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boot {
+            position: absolute;
+            left: 40px;
+            bottom: 20px;
+            font-size: 70px;
+            animation: kickBoot 1s ease-in-out forwards;
+        }
+
+        .soap {
+            position: absolute;
+            left: 150px;
+            bottom: 35px;
+            font-size: 60px;
+            animation: soapFly 1s ease-in-out forwards;
+        }
+
+        @keyframes kickBoot {
+            0% {
+                transform: translateX(0) rotate(0deg);
+            }
+
+            45% {
+                transform: translateX(65px) rotate(-20deg);
+            }
+
+            60% {
+                transform: translateX(75px) rotate(-25deg);
+            }
+
+            100% {
+                transform: translateX(0) rotate(0deg);
+            }
+        }
+
+        @keyframes soapFly {
+            0% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            45% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(280px) translateY(-40px) rotate(60deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -59,14 +117,29 @@
 
 <select id="currentLocation">
     <option value="">Choose area</option>
-    <option value="1 West Men's Restroom">1 West Men's Restroom</option>
-    <option value="1 West Women's Restroom">1 West Women's Restroom</option>
-    <option value="1 East Men's Restroom">1 East Men's Restroom</option>
+
+    <option value="1 West Men's Restroom">
+        1 West Men's Restroom
+    </option>
+
+    <option value="1 West Women's Restroom">
+        1 West Women's Restroom
+    </option>
+
+    <option value="1 East Men's Restroom">
+        1 East Men's Restroom
+    </option>
+
+    <option value="Maureen's Office">
+        Maureen's Office
+    </option>
 </select>
 
 <button onclick="checkLocation()">CHECK SOAP</button>
 
 <div id="result"></div>
+
+<div id="animationArea"></div>
 
 <script>
 
@@ -95,15 +168,24 @@ function checkLocation() {
     const result =
         document.getElementById("result");
 
+    const animationArea =
+        document.getElementById("animationArea");
+
+    animationArea.innerHTML = "";
+
     if (!currentLocation) {
+
         result.textContent = "Choose an area first.";
+
         result.className = "";
+
         return;
     }
 
     if (currentLocation === assignedLocation) {
 
         result.textContent = "✅ CORRECT AREA";
+
         result.className = "correct";
 
     } else {
@@ -112,9 +194,16 @@ function checkLocation() {
             "🚨 WRONG AREA — belongs in " + assignedLocation;
 
         result.className = "wrong";
+
+        if (currentLocation === "Maureen's Office") {
+
+            animationArea.innerHTML = `
+                <div class="boot">👢</div>
+                <div class="soap">🧼</div>
+            `;
+        }
     }
 }
-
 </script>
 
 </body>
