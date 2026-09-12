@@ -129,10 +129,6 @@
     <option value="1 East Men's Restroom">
         1 East Men's Restroom
     </option>
-
-    <option value="Maureen's Office">
-        Maureen's Office
-    </option>
 </select>
 
 <button onclick="checkLocation()">CHECK SOAP</button>
@@ -174,18 +170,14 @@ function checkLocation() {
     animationArea.innerHTML = "";
 
     if (!currentLocation) {
-
         result.textContent = "Choose an area first.";
-
         result.className = "";
-
         return;
     }
 
     if (currentLocation === assignedLocation) {
 
         result.textContent = "✅ CORRECT AREA";
-
         result.className = "correct";
 
     } else {
@@ -195,15 +187,13 @@ function checkLocation() {
 
         result.className = "wrong";
 
-        if (currentLocation === "Maureen's Office") {
-
-            animationArea.innerHTML = `
-                <div class="boot">👢</div>
-                <div class="soap">🧼</div>
-            `;
-        }
+        animationArea.innerHTML = `
+            <div class="boot">👢</div>
+            <div class="soap">🧼</div>
+        `;
     }
 }
+
 </script>
 
 </body>
