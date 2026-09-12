@@ -31,9 +31,9 @@
         }
 
         .value {
-            font-size: 26px;
-            margin-top: 8px;
-            margin-bottom: 25px;
+            font-size: 24px;
+            margin-top: 6px;
+            margin-bottom: 22px;
         }
 
         #status {
@@ -42,7 +42,80 @@
             font-size: 24px;
             font-weight: bold;
             text-align: center;
+            border-radius: 10px;
+        }
+
+        .correct {
             background: #c8f7c5;
+        }
+
+        .wrong {
+            background: #ffcccc;
+        }
+
+        .waiting {
+            background: #fff3cd;
+        }
+
+        #animationArea {
+            margin-top: 20px;
+            height: 150px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boot {
+            position: absolute;
+            left: 40px;
+            bottom: 20px;
+            font-size: 70px;
+            animation: kickBoot 1s ease-in-out forwards;
+        }
+
+        .soap {
+            position: absolute;
+            left: 150px;
+            bottom: 35px;
+            font-size: 60px;
+            animation: soapFly 1s ease-in-out forwards;
+        }
+
+        @keyframes kickBoot {
+            0% {
+                transform: translateX(0) rotate(0deg);
+            }
+
+            45% {
+                transform: translateX(65px) rotate(-20deg);
+            }
+
+            60% {
+                transform: translateX(75px) rotate(-25deg);
+            }
+
+            100% {
+                transform: translateX(0) rotate(0deg);
+            }
+        }
+
+        @keyframes soapFly {
+            0% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            45% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(280px)
+                           translateY(-40px)
+                           rotate(60deg);
+
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -59,42 +132,129 @@
     <div class="label">This soap belongs in:</div>
     <div class="value" id="assignedLocation"></div>
 
+    <div class="label">Current scanned area:</div>
+    <div class="value" id="currentLocation"></div>
+
 </div>
 
-<div id="status">
-    QR CODE IDENTIFIED
-</div>
+<div id="status"></div>
+
+<div id="animationArea"></div>
 
 <script>
 
 const soapLocations = {
-    "SOAP-001": "1 West Men's Restroom",
-    "SOAP-002": "1 West Women's Restroom",
-    "SOAP-003": "1 East Men's Restroom"
+    "SOAP-001": "1-west-men",
+    "SOAP-002": "1-west-women",
+    "SOAP-003": "1-east-men"
 };
 
-const params = new URLSearchParams(window.location.search);
+const locationNames = {
+    "1-west-men": "1 West Men's Restroom",
+    "1-west-women": "1 West Women's Restroom",
+    "1-east-men": "1 East Men's Restroom"
+};
 
-const soapId = params.get("soap");
+const params =
+    new URLSearchParams(window.location.search);
 
-const soapIdDisplay = document.getElementById("soapId");
-const assignedLocationDisplay = document.getElementById("assignedLocation");
-const status = document.getElementById("status");
+const soapId =
+    params.get("soap");
 
-if (soapId && soapLocations[soapId]) {
+const currentLocation =
+    params.get("location");
 
-    soapIdDisplay.textContent = soapId;
-    assignedLocationDisplay.textContent = soapLocations[soapId];
+const assignedLocation =
+    soapLocations[soapId];
 
-    status.textContent = "✅ SOAP IDENTIFIED";
+const soapDisplay =
+    document.getElementById("soapId");
 
-} else {
+const assignedDisplay =
+    document.getElementById("assignedLocation");
 
-    soapIdDisplay.textContent = "UNKNOWN";
-    assignedLocationDisplay.textContent = "Scan a valid soap QR code";
+const currentDisplay =
+    document.getElementById("currentLocation");
 
-    status.textContent = "❌ INVALID QR CODE";
-    status.style.background = "#ffcccc";
+const status =
+    document.getElementById("status");
+
+const animationArea =
+    document.getElementById("animationArea");
+
+
+if (!soapId || !assignedLocation) {
+
+    soapDisplay.textContent =
+        "UNKNOWN";
+
+    assignedDisplay.textContent =
+        "Soap not found";
+
+    currentDisplay.textContent =
+        "Unknown";
+
+    status.textContent =
+        "❌ INVALID SOAP QR";
+
+    status.className =
+        "wrong";
+
+}
+
+else {
+
+    soapDisplay.textContent =
+        soapId;
+
+    assignedDisplay.textContent =
+        locationNames[assignedLocation];
+
+
+    if (!currentLocation) {
+
+        currentDisplay.textContent =
+            "Location not scanned";
+
+        status.textContent =
+            "⚠️ SOAP IDENTIFIED — LOCATION NOT VERIFIED";
+
+        status.className =
+            "waiting";
+
+    }
+
+    else {
+
+        currentDisplay.textContent =
+            locationNames[currentLocation] ||
+            currentLocation;
+
+
+        if (currentLocation === assignedLocation) {
+
+            status.textContent =
+                "✅ CORRECT AREA";
+
+            status.className =
+                "correct";
+
+        }
+
+        else {
+
+            status.textContent =
+                "🚨 WRONG AREA — MOVE THIS SOAP!";
+
+            status.className =
+                "wrong";
+
+            animationArea.innerHTML = `
+                <div class="boot">🥾</div>
+                <div class="soap">🧼</div>
+            `;
+        }
+    }
 }
 
 </script>
