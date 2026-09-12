@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>EVS Soap Tracker</title>
 
     <style>
@@ -19,10 +18,9 @@
         }
 
         .box {
-            margin-top: 25px;
-            padding: 20px;
             border: 2px solid #ccc;
             border-radius: 12px;
+            padding: 20px;
         }
 
         .label {
@@ -31,9 +29,8 @@
         }
 
         .value {
-            font-size: 24px;
-            margin-top: 6px;
-            margin-bottom: 22px;
+            font-size: 26px;
+            margin: 8px 0 25px;
         }
 
         #status {
@@ -58,10 +55,10 @@
         }
 
         #animationArea {
-            margin-top: 20px;
             height: 150px;
             position: relative;
             overflow: hidden;
+            margin-top: 20px;
         }
 
         .boot {
@@ -81,39 +78,24 @@
         }
 
         @keyframes kickBoot {
-            0% {
-                transform: translateX(0) rotate(0deg);
-            }
-
-            45% {
-                transform: translateX(65px) rotate(-20deg);
-            }
-
-            60% {
-                transform: translateX(75px) rotate(-25deg);
-            }
-
-            100% {
-                transform: translateX(0) rotate(0deg);
-            }
+            0% { transform: translateX(0); }
+            50% { transform: translateX(75px) rotate(-25deg); }
+            100% { transform: translateX(0); }
         }
 
         @keyframes soapFly {
             0% {
-                transform: translateX(0) rotate(0deg);
+                transform: translateX(0);
                 opacity: 1;
             }
 
-            45% {
-                transform: translateX(0) rotate(0deg);
+            50% {
+                transform: translateX(0);
                 opacity: 1;
             }
 
             100% {
-                transform: translateX(280px)
-                           translateY(-40px)
-                           rotate(60deg);
-
+                transform: translateX(280px) translateY(-40px) rotate(60deg);
                 opacity: 0;
             }
         }
@@ -142,7 +124,6 @@
 <div id="animationArea"></div>
 
 <script>
-
 const soapLocations = {
     "SOAP-001": "1-west-men",
     "SOAP-002": "1-west-women",
@@ -155,103 +136,61 @@ const locationNames = {
     "1-east-men": "1 East Men's Restroom"
 };
 
-const params =
-    new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search);
 
-const soapId =
-    params.get("soap");
+const soapId = params.get("soap");
+const currentLocation = params.get("location");
+const assignedLocation = soapLocations[soapId];
 
-const currentLocation =
-    params.get("location");
-
-const assignedLocation =
-    soapLocations[soapId];
-
-const soapDisplay =
-    document.getElementById("soapId");
-
-const assignedDisplay =
-    document.getElementById("assignedLocation");
-
-const currentDisplay =
-    document.getElementById("currentLocation");
-
-const status =
-    document.getElementById("status");
-
-const animationArea =
-    document.getElementById("animationArea");
-
+const soapDisplay = document.getElementById("soapId");
+const assignedDisplay = document.getElementById("assignedLocation");
+const currentDisplay = document.getElementById("currentLocation");
+const status = document.getElementById("status");
+const animationArea = document.getElementById("animationArea");
 
 if (!soapId || !assignedLocation) {
 
-    soapDisplay.textContent =
-        "UNKNOWN";
+    soapDisplay.textContent = "UNKNOWN";
+    assignedDisplay.textContent = "Soap not found";
+    currentDisplay.textContent = "Unknown";
 
-    assignedDisplay.textContent =
-        "Soap not found";
+    status.textContent = "❌ INVALID SOAP QR";
+    status.className = "wrong";
 
-    currentDisplay.textContent =
-        "Unknown";
+} else {
 
-    status.textContent =
-        "❌ INVALID SOAP QR";
+    soapDisplay.textContent = soapId;
+    assignedDisplay.textContent = locationNames[assignedLocation];
 
-    status.className =
-        "wrong";
+    if (!currentLocation) {
 
-}
+        currentDisplay.textContent = "Location not scanned";
 
-else {
+        status.textContent =
+            "⚠️ SOAP IDENTIFIED — LOCATION NOT VERIFIED";
 
-    soapDisplay.textContent =
-        soapId;
+        status.className = "waiting";
 
-    assignedDisplay.textContent =
-        locationNames[assignedLocation];
+        animationArea.innerHTML = `
+            <div class="boot">🥾</div>
+            <div class="soap">🧼</div>
+        `;
 
-
-  if (!currentLocation) {
-
-    currentDisplay.textContent =
-        "Location not scanned";
-
-    status.textContent =
-        "⚠️ SOAP IDENTIFIED — LOCATION NOT VERIFIED";
-
-    status.className =
-        "waiting";
-
-    animationArea.innerHTML = `
-        <div class="boot">🥾</div>
-        <div class="soap">🧼</div>
-    `;
-}
-
-    else {
+    } else {
 
         currentDisplay.textContent =
-            locationNames[currentLocation] ||
-            currentLocation;
-
+            locationNames[currentLocation] || currentLocation;
 
         if (currentLocation === assignedLocation) {
 
-            status.textContent =
-                "✅ CORRECT AREA";
+            status.textContent = "✅ CORRECT AREA";
+            status.className = "correct";
+            animationArea.innerHTML = "";
 
-            status.className =
-                "correct";
+        } else {
 
-        }
-
-        else {
-
-            status.textContent =
-                "🚨 WRONG AREA — MOVE THIS SOAP!";
-
-            status.className =
-                "wrong";
+            status.textContent = "🚨 WRONG AREA — MOVE THIS SOAP!";
+            status.className = "wrong";
 
             animationArea.innerHTML = `
                 <div class="boot">🥾</div>
@@ -260,7 +199,6 @@ else {
         }
     }
 }
-
 </script>
 
 </body>
