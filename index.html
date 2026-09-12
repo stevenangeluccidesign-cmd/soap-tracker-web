@@ -18,85 +18,31 @@
             text-align: center;
         }
 
-        select, button {
-            width: 100%;
-            padding: 14px;
-            font-size: 18px;
-            margin-top: 10px;
+        .box {
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 12px;
         }
 
-        #result {
+        .label {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .value {
+            font-size: 26px;
+            margin-top: 8px;
+            margin-bottom: 25px;
+        }
+
+        #status {
             margin-top: 25px;
             padding: 20px;
             font-size: 24px;
             font-weight: bold;
             text-align: center;
-        }
-
-        .correct {
             background: #c8f7c5;
-        }
-
-        .wrong {
-            background: #ffcccc;
-        }
-
-        #animationArea {
-            margin-top: 20px;
-            height: 140px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .boot {
-            position: absolute;
-            left: 40px;
-            bottom: 20px;
-            font-size: 70px;
-            animation: kickBoot 1s ease-in-out forwards;
-        }
-
-        .soap {
-            position: absolute;
-            left: 150px;
-            bottom: 35px;
-            font-size: 60px;
-            animation: soapFly 1s ease-in-out forwards;
-        }
-
-        @keyframes kickBoot {
-            0% {
-                transform: translateX(0) rotate(0deg);
-            }
-
-            45% {
-                transform: translateX(65px) rotate(-20deg);
-            }
-
-            60% {
-                transform: translateX(75px) rotate(-25deg);
-            }
-
-            100% {
-                transform: translateX(0) rotate(0deg);
-            }
-        }
-
-        @keyframes soapFly {
-            0% {
-                transform: translateX(0) rotate(0deg);
-                opacity: 1;
-            }
-
-            45% {
-                transform: translateX(0) rotate(0deg);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateX(280px) translateY(-40px) rotate(60deg);
-                opacity: 0;
-            }
         }
     </style>
 </head>
@@ -105,37 +51,19 @@
 
 <h1>EVS Soap Tracker</h1>
 
-<p><strong>Soap ID:</strong></p>
-<p id="soapId"></p>
+<div class="box">
 
-<p><strong>This soap belongs in:</strong></p>
-<p id="assignedLocation"></p>
+    <div class="label">Soap ID:</div>
+    <div class="value" id="soapId"></div>
 
-<label for="currentLocation">
-    <strong>Where is the soap now?</strong>
-</label>
+    <div class="label">This soap belongs in:</div>
+    <div class="value" id="assignedLocation"></div>
 
-<select id="currentLocation">
-    <option value="">Choose area</option>
+</div>
 
-    <option value="1 West Men's Restroom">
-        1 West Men's Restroom
-    </option>
-
-    <option value="1 West Women's Restroom">
-        1 West Women's Restroom
-    </option>
-
-    <option value="1 East Men's Restroom">
-        1 East Men's Restroom
-    </option>
-</select>
-
-<button onclick="checkLocation()">CHECK SOAP</button>
-
-<div id="result"></div>
-
-<div id="animationArea"></div>
+<div id="status">
+    QR CODE IDENTIFIED
+</div>
 
 <script>
 
@@ -147,51 +75,26 @@ const soapLocations = {
 
 const params = new URLSearchParams(window.location.search);
 
-const soapId = params.get("soap") || "SOAP-001";
+const soapId = params.get("soap");
 
-const assignedLocation = soapLocations[soapId];
+const soapIdDisplay = document.getElementById("soapId");
+const assignedLocationDisplay = document.getElementById("assignedLocation");
+const status = document.getElementById("status");
 
-document.getElementById("soapId").textContent = soapId;
+if (soapId && soapLocations[soapId]) {
 
-document.getElementById("assignedLocation").textContent =
-    assignedLocation || "Soap not found";
+    soapIdDisplay.textContent = soapId;
+    assignedLocationDisplay.textContent = soapLocations[soapId];
 
-function checkLocation() {
+    status.textContent = "✅ SOAP IDENTIFIED";
 
-    const currentLocation =
-        document.getElementById("currentLocation").value;
+} else {
 
-    const result =
-        document.getElementById("result");
+    soapIdDisplay.textContent = "UNKNOWN";
+    assignedLocationDisplay.textContent = "Scan a valid soap QR code";
 
-    const animationArea =
-        document.getElementById("animationArea");
-
-    animationArea.innerHTML = "";
-
-    if (!currentLocation) {
-        result.textContent = "Choose an area first.";
-        result.className = "";
-        return;
-    }
-
-    if (currentLocation === assignedLocation) {
-
-        result.textContent = "✅ CORRECT AREA";
-        result.className = "correct";
-
-    } else {
-
-        result.textContent =
-            "🚨 WRONG AREA — belongs in " + assignedLocation;
-
-        result.className = "wrong";
-
-        animationArea.innerHTML = `
-            <div class="boot">👢</div>
-            <div class="soap">🧼</div>
-        `;
-    }
+    status.textContent = "❌ INVALID QR CODE";
+    status.style.background = "#ffcccc";
 }
 
 </script>
