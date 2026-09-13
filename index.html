@@ -17,29 +17,19 @@
             text-align: center;
         }
 
-        .box {
-            border: 2px solid #ccc;
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .label {
+        select, button {
+            width: 100%;
+            padding: 14px;
             font-size: 18px;
-            font-weight: bold;
+            margin-top: 10px;
         }
 
-        .value {
-            font-size: 26px;
-            margin: 8px 0 25px;
-        }
-
-        #status {
+        #result {
             margin-top: 25px;
             padding: 20px;
             font-size: 24px;
             font-weight: bold;
             text-align: center;
-            border-radius: 10px;
         }
 
         .correct {
@@ -50,15 +40,11 @@
             background: #ffcccc;
         }
 
-        .waiting {
-            background: #fff3cd;
-        }
-
         #animationArea {
-            height: 150px;
+            margin-top: 20px;
+            height: 140px;
             position: relative;
             overflow: hidden;
-            margin-top: 20px;
         }
 
         .boot {
@@ -78,19 +64,31 @@
         }
 
         @keyframes kickBoot {
-            0% { transform: translateX(0); }
-            50% { transform: translateX(75px) rotate(-25deg); }
-            100% { transform: translateX(0); }
+            0% {
+                transform: translateX(0) rotate(0deg);
+            }
+
+            45% {
+                transform: translateX(65px) rotate(-20deg);
+            }
+
+            60% {
+                transform: translateX(75px) rotate(-25deg);
+            }
+
+            100% {
+                transform: translateX(0) rotate(0deg);
+            }
         }
 
         @keyframes soapFly {
             0% {
-                transform: translateX(0);
+                transform: translateX(0) rotate(0deg);
                 opacity: 1;
             }
 
-            50% {
-                transform: translateX(0);
+            45% {
+                transform: translateX(0) rotate(0deg);
                 opacity: 1;
             }
 
@@ -106,100 +104,85 @@
 
 <h1>EVS Soap Tracker</h1>
 
-<div class="box">
+<p><strong>Soap ID:</strong></p>
+<p id="soapId"></p>
 
-    <div class="label">Soap ID:</div>
-    <div class="value" id="soapId"></div>
+<p><strong>This soap belongs in:</strong></p>
+<p id="assignedLocation"></p>
 
-    <div class="label">This soap belongs in:</div>
-    <div class="value" id="assignedLocation"></div>
+<label for="currentLocation">
+    <strong>Where is the soap now?</strong>
+</label>
 
-    <div class="label">Current scanned area:</div>
-    <div class="value" id="currentLocation"></div>
+<select id="currentLocation">
+    <option value="">Choose area</option>
+    <option value="1 West Men's Restroom">1 West Men's Restroom</option>
+    <option value="1 West Women's Restroom">1 West Women's Restroom</option>
+    <option value="1 East Men's Restroom">1 East Men's Restroom</option>
+</select>
 
-</div>
+<button onclick="checkLocation()">CHECK SOAP</button>
 
-<div id="status"></div>
-
+<div id="result"></div>
 <div id="animationArea"></div>
 
 <script>
 const soapLocations = {
-    "SOAP-001": "1-west-men",
-    "SOAP-002": "1-west-women",
-    "SOAP-003": "1-east-men"
-};
-
-const locationNames = {
-    "1-west-men": "1 West Men's Restroom",
-    "1-west-women": "1 West Women's Restroom",
-    "1-east-men": "1 East Men's Restroom"
+    "SOAP-001": "1 West Men's Restroom",
+    "SOAP-002": "1 West Women's Restroom",
+    "SOAP-003": "1 East Men's Restroom"
 };
 
 const params = new URLSearchParams(window.location.search);
 
-const soapId = params.get("soap");
-const currentLocation = params.get("location");
+const soapId = params.get("soap") || "SOAP-001";
 const assignedLocation = soapLocations[soapId];
 
-const soapDisplay = document.getElementById("soapId");
-const assignedDisplay = document.getElementById("assignedLocation");
-const currentDisplay = document.getElementById("currentLocation");
-const status = document.getElementById("status");
-const animationArea = document.getElementById("animationArea");
+document.getElementById("soapId").textContent = soapId;
 
-if (!soapId || !assignedLocation) {
+document.getElementById("assignedLocation").textContent =
+    assignedLocation || "Soap not found";
 
-    soapDisplay.textContent = "UNKNOWN";
-    assignedDisplay.textContent = "Soap not found";
-    currentDisplay.textContent = "Unknown";
+function checkLocation() {
 
-    status.textContent = "❌ INVALID SOAP QR";
-    status.className = "wrong";
+    const currentLocation =
+        document.getElementById("currentLocation").value;
 
-} else {
+    const result =
+        document.getElementById("result");
 
-    soapDisplay.textContent = soapId;
-    assignedDisplay.textContent = locationNames[assignedLocation];
+    const animationArea =
+        document.getElementById("animationArea");
+
+    animationArea.innerHTML = "";
 
     if (!currentLocation) {
+        result.textContent = "Choose an area first.";
+        result.className = "";
+        return;
+    }
 
-        currentDisplay.textContent = "Location not scanned";
+    if (currentLocation === assignedLocation) {
 
-        status.textContent =
-            "⚠️ SOAP IDENTIFIED — LOCATION NOT VERIFIED";
+        result.textContent = "✅ CORRECT AREA";
+        result.className = "correct";
 
-        status.className = "waiting";
+    } else {
+
+        result.textContent =
+            "🚨 WRONG AREA — belongs in " + assignedLocation;
+
+        result.className = "wrong";
 
         animationArea.innerHTML = `
             <div class="boot">🥾</div>
             <div class="soap">🧼</div>
         `;
-
-    } else {
-
-        currentDisplay.textContent =
-            locationNames[currentLocation] || currentLocation;
-
-        if (currentLocation === assignedLocation) {
-
-            status.textContent = "✅ CORRECT AREA";
-            status.className = "correct";
-            animationArea.innerHTML = "";
-
-        } else {
-
-            status.textContent = "🚨 WRONG AREA — MOVE THIS SOAP!";
-            status.className = "wrong";
-
-            animationArea.innerHTML = `
-                <div class="boot">🥾</div>
-                <div class="soap">🧼</div>
-            `;
-        }
     }
 }
 </script>
 
 </body>
 </html>
+
+
